@@ -2,11 +2,11 @@
 ##### Written by [Amado Tejada](https://www.linkedin.com/in/amadotejada/)
 ##
 
-MDM solutions like Jamf, Airwatch and many others have computers check-in at a cadence, usually every 15/30 minutes with no way to force a computer to check in instantly to get new policies/software unless you have the computer's owner manually check in or you have the computer with you. SSH is not a reliable option with many working from home with their own network set up.
+MDM solutions like Jamf, AirWatch and many others have computers check-in at a cadence, usually every 15/30 minutes with no way to force a computer to check in instantly to get new policies/software unless you have the computer's owner manually check in, or you have the computer with you. SSH is not a reliable option with many working from home with their own network set up.
 
-With companies going to a working remote workforce, this may poses a security risk for administrators who may need to push a urgent remediation to computers that are vulnerable to a malicious attack or need to deploy software urgently. Depending on your company's security policy, 15 minutes before a machine acts is unacceptable. 
+With companies going to a working remote workforce, this may pose a security risk for administrators who may need to push an urgent remediation to computers that are vulnerable to a malicious attack or need to deploy software urgently. Depending on your company's security policy, 15 minutes before a machine acts is unacceptable. Especially if you do not have an EDR solution in your stack.
 
-*instant-checkin* is a MDM workaround to force computers to check in instantly via an MDM profile (APNs).
+*instant-checkin* is an MDM workaround to force computers to check in instantly via an MDM profile (APNs).
 
  <img src="./screenshots/workflow.svg" width="100%">
 
@@ -50,7 +50,7 @@ For my use I use the `Room` which we do not use.
 <img src="./screenshots/room.png" width="100%">
 
 <!-- <br> -->
-1. When you want to force a check-in on a computer, edit the `Room` field to `check-in` and save.
+1. When you wish to force a check-in on a computer, edit the `Room` field to `check-in` and save.
     * That will push the profile from step 2 to the computer instantly via APNs
     * The profile will trigger `instant_checkin_deploy.sh` to run on the computer
     * `instant_checkin_deploy.sh` will run any new policies assigned to the computer and check-in
@@ -59,7 +59,7 @@ For my use I use the `Room` which we do not use.
 If you want to force a specific policy, you can add the ID to `com.DOMAIN.instant_checkin.plist` below `policyid`
 
 ## *instant-checkin CLI*
-I also created a python CLI tool to force a check-ins via terminal
+I also created a python CLI tool to force check-ins via terminal
 
 [*instant-checkin CLI*](https://github.com/amadotejada/instant-checkin-cli)
 
