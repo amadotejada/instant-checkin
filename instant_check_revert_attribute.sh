@@ -7,14 +7,19 @@ API_USER="$5"
 API_PASS="$6"
 getudid=$(system_profiler SPHardwareDataType | grep UUID | awk '{print $3}')
 eaID="$7"
-#value="$8"
 value="Last run: $(date)"
 
+update_attribute() {
 curl -X PUT -sfku $API_USER:$API_PASS "https://$jamfserver/JSSResource/computers/udid/$getudid/subset/extension_attributes" \
     -H "Content-Type: application/xml" \
     -H "Accept: application/xml" \
     -d "<computer><extension_attributes><extension_attribute><id>$eaID</id><value>$value</value></extension_attribute></extension_attributes></computer>"
+}
 
-echo "Updated: Computer custom attribute to default: $(date)" >>/var/log/INSTANT_CHECKIN.log
-
-exit 0
+if update_attribute; then
+    echo "Updated: Custom Attribute, $(date)" >>/var/log/INSTANT_CHECKIN.log
+    exit 0
+else
+    echo "Error: Attribute not updated, $(date)" >>/var/log/INSTANT_CHECKIN.log
+    exit 1
+fi
