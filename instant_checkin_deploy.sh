@@ -4,9 +4,9 @@
 
 if [[ $(id -u) -ne 0 ]] ; then echo "Run as root" ; exit 1 ; fi
 
-DOMAIN=""
+DOMAIN="$4"
 
-if [[ ! $DOMAIN ]]; then echo "$DOMAIN not set"; exit 1; fi
+if [[ ! $DOMAIN ]]; then echo "Domain not set"; exit 1; fi
 
 cat << EOF > "/Library/LaunchDaemons/com.$DOMAIN.instant_checkin.plist"
 <?xml version="1.0" encoding="UTF-8"?>
@@ -36,26 +36,30 @@ cat << EOF > "/Library/Application Support/$DOMAIN/instant_checkin_runner.sh"
 
 # amado.tejada | 01/19/2024
 
-echo "\nStarted: Instant checkin run: \$(date)" >>/var/log/INSTANT_CHECKIN.log
-/usr/local/bin/jamf policy -id 241
+echo "\nStarted: Instant checkin run, \$(date)" >>/var/log/INSTANT_CHECKIN.log
+
 {
-	if [ -e "/Library/Managed Preferences/com.\$DOMAIN.instant_checkin.plist" ]; then
-		policyid=\$(defaults read "/Library/Managed Preferences/com.\$DOMAIN.instant_checkin.plist" policyid)
+	if [ -e "/Library/Managed Preferences/com.$DOMAIN.instant_checkin.plist" ]; then
+		policyid=\$(defaults read "/Library/Managed Preferences/com.$DOMAIN.instant_checkin.plist" policyid)
 		if [[ "\$policyid" =~ ^[0-9]+$ ]]; then
+			/usr/local/bin/jamf policy -id 241
 			echo "Running: Policy \$policyid + recon: \$(date)" >>/var/log/INSTANT_CHECKIN.lo
 			/usr/local/bin/jamf policy -id \$policyid
 		else
-			echo "Running: Normal policies + recon: \$(date)" >>/var/log/INSTANT_CHECKIN.log
+			/usr/local/bin/jamf policy -id 241
+			echo "Running: Normal policies + recon, \$(date)" >>/var/log/INSTANT_CHECKIN.log
 			/usr/local/bin/jamf policy
 		fi
+	else
+		echo "Error: No instant_checkin.plist file found, \$(date)" >>/var/log/INSTANT_CHECKIN.log
 	fi
 
 } || {
-	echo "Error: No instant_checkin.plist file found: \$(date)" >>/var/log/INSTANT_CHECKIN.log
+	echo "Error: No instant_checkin.plist file found, \$(date)" >>/var/log/INSTANT_CHECKIN.log
 }
 
 /usr/local/bin/jamf recon
-echo "Ended: Instant checkin run: \$(date)" >>/var/log/INSTANT_CHECKIN.log
+echo "Finished: Instant checkin run, \$(date)" >>/var/log/INSTANT_CHECKIN.log
 EOF
 
 chmod +x "/Library/Application Support/$DOMAIN/instant_checkin_runner.sh"
@@ -64,7 +68,7 @@ chmod 644 /Library/LaunchDaemons/com.$DOMAIN.instant_checkin.plist
 launchctl unload /Library/LaunchDaemons/com.$DOMAIN.instant_checkin.plist
 launchctl load -w /Library/LaunchDaemons/com.$DOMAIN.instant_checkin.plist
 
-echo -e "\nInstalled: instant_checkin_runner.sh: $(date)" >>/var/log/INSTANT_CHECKIN.log
+echo -e "\nInstalled: instant_checkin_runner.sh, $(date)" >>/var/log/INSTANT_CHECKIN.log
 /usr/local/bin/jamf policy -id 241
 /usr/local/bin/jamf recon
 
